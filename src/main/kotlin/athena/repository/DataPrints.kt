@@ -18,6 +18,9 @@ data class GenericModel (
     val content: String = ""
 )
 
+/**
+ * for transfer of files to boxes.
+ */
 data class FileObject (
     val transferIndex: Int = 0,
     val packageName: String = "",

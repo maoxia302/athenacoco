@@ -157,7 +157,7 @@ public abstract class BasicSocketChannelClient implements SocketSession {
         try {
             if (channel == null) return -1;
             resetLengthBuf();
-            int length;
+            int length = 0;
             try {
                 int r = channel.read(this.readbufLength);
                 if (r > 0) {
@@ -179,7 +179,7 @@ public abstract class BasicSocketChannelClient implements SocketSession {
                 ex.printStackTrace();
                 return -1;
             }
-            return -1;
+            return length;
         } finally {
             locked.set(false);
             resetBuf();
@@ -224,16 +224,16 @@ public abstract class BasicSocketChannelClient implements SocketSession {
                     byte[] finalData = new byte[lengthBytes.length + data.length];
                     System.arraycopy(lengthBytes, 0, finalData, 0, lengthBytes.length);
                     System.arraycopy(data, 0, finalData, lengthBytes.length, data.length);
-                    ByteBuffer writebuf = ByteBuffer.wrap(finalData);
+                    ByteBuffer writeBuf = ByteBuffer.wrap(finalData);
                     while (true) {
                         try {
-                            channel.write(writebuf);
+                            channel.write(writeBuf);
                         } catch (Exception e) {
                             e.printStackTrace();
                             System.out.println("SOCKET-CLOSED");
                             return;
                         }
-                        if (!writebuf.hasRemaining()) {
+                        if (!writeBuf.hasRemaining()) {
                             break;
                         }
                         try {

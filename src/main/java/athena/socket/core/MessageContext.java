@@ -12,7 +12,7 @@ public class MessageContext implements Serializable {
 
 	private transient Object origin;  //exchange data. normally not used.
 	private Object content;
-	private String protocolName;
+	private String protocolName; //partyName
 	private int gateConnectId;  //track client (or server) default 9 as for no need to track.
 	private String gateService; //keep track on the gateway if there is any.
 	private int	priority;   //to use: 1 - 4. 4 being the highest and should be handled at higher level.

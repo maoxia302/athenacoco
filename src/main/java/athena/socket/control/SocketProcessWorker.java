@@ -11,7 +11,7 @@ public class SocketProcessWorker implements PoolWorker {
     private static final long STARTER_GAP = 1000L;
     private static final long READ_WRITE_TIME_GAP = 40L;
 
-    private ExecutorService readWritePool = Executors.newFixedThreadPool(65535 * 2); //max connection 65535
+    private final ExecutorService readWritePool = Executors.newFixedThreadPool(65535 * 2); //max connection 65535
 
     private BasicSocketChannelManager manager;
 
@@ -40,6 +40,7 @@ public class SocketProcessWorker implements PoolWorker {
 					int readSize = client.read(manager);
                     System.out.println("socket selector read:::" + selKey.toString() + "  " + readSize);
                     if (readSize == -1) {
+                        System.out.println("client closing...");
 						client.close();
 					}
 				} catch (Exception ex) {
@@ -100,9 +101,10 @@ public class SocketProcessWorker implements PoolWorker {
         public void run() {
             while (true) {
                 try {
-                    if (client.read(manager) == -1) {
-                        Thread.sleep(READ_WRITE_TIME_GAP);
-                        continue;
+                    int reader = client.read(manager);
+                    if (reader == -1) {
+                        client.close();
+                        return;
                     }
                     Thread.sleep(READ_WRITE_TIME_GAP);
                 } catch (Exception ex) {

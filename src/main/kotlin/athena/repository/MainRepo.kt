@@ -43,10 +43,21 @@ class RawPartiesManagement(@Autowired private val rawPartiesRepository: RawParti
         r.directory = 498601
         r.signDate = Date()
         r.signTime = MiniCommonUtils.currentMillis()
-        r.token = "76D34EAF7ABB240BD25BE43AFFD6F488".hashCode()
+        r.token = 0
         r.details = ""
         r.authorization = 1
         rawPartiesRepository.save(r)
+        val r2 = RawParties()
+        r2.partyName = "2C4E866DB57BA3087B37D3EA5D3C73D2"
+        r2.authentication = "2C4E866DB57BA3087B37D3EA5D3C73D2".reversed()
+        r2.origin = "LINDE"
+        r2.directory = 498601
+        r2.signDate = Date()
+        r2.signTime = MiniCommonUtils.currentMillis()
+        r2.token = 0
+        r2.details = ""
+        r2.authorization = 1
+        rawPartiesRepository.save(r2)
     }
 }
 
@@ -91,13 +102,13 @@ class RawParties {
         private const val DIRECTORY_FLAG: String = "<DI>"
         private const val TOKEN_FLAG: String = "<TK>"
         private const val DETAILS_FLAG: String = "<DE>"
-        private const val AUTHORIZATION_FLAG: String = "<AO>"
-
+        //<PN>76D34EAF7ABB240BD25BE43AFFD6F488<PN><AE>884F6DFFA34EB52DB042BBA7FAE43D67<AE><OR>LINDE<OR><DI>498600<DI><TK>403690081<TK><DE><U>UPDATE_SLICE<U><DE><AO>1<AO>
         //<PN>partyName<PN><AE>authentication<AE><OR>origin<OR><DI>directory<DI><TK>token<TK><DE>details<DE><AO>authorization<AO>
         fun parseMessageContext(cipher: String) : RawParties? {
             try {
                 val rawParties = RawParties()
                 var ci = cipher.substring(PARTY_NAME_FLAG.length)
+                println("mainCI::$ci")
                 var arr = ci.split(PARTY_NAME_FLAG)
                 rawParties.partyName = arr[0]
                 ci = arr[1].substring(AUTHENTICATION_FLAG.length)
@@ -123,6 +134,8 @@ class RawParties {
             }
             return null
         }
+
+        private const val AUTHORIZATION_FLAG: String = "<AO>"
 
         /**
          *  PartyName  <===>  ProtocolName            ===>  <PN><PN>

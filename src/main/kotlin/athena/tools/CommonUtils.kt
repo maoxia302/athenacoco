@@ -173,5 +173,13 @@ class MiniCommonUtils {
         fun currentMillis() : Long {
             return Date().time
         }
+        @JvmStatic
+        fun formDate(dateStr: String) : Date? {
+            return try {
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStr)
+            } catch (ex: Exception) {
+                null
+            }
+        }
     }
 }

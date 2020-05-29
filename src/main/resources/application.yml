@@ -1,5 +1,5 @@
 spring:
-  datasource:
+  cache-datasource:
     jdbc-url: jdbc:h2:mem:athena
     driverClassName: org.h2.Driver
     username: sa
@@ -9,6 +9,17 @@ spring:
       minimum-idle: 2
       maximum-pool-size: 10
       pool-name: PartiesPool
+      auto-commit: false
+  postgres-datasource:
+    jdbc-url: jdbc:postgresql://localhost:5432/postgres   # dev
+    username: postgres
+    password: dafuq@911
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 10
+      maximum-pool-size: 100
+      pool-name: AssetsPool
       auto-commit: false
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
