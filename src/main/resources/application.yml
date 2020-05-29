@@ -10,6 +10,10 @@ spring:
       maximum-pool-size: 10
       pool-name: PartiesPool
       auto-commit: false
+    jpa:
+      database-platform: org.hibernate.dialect.H2Dialect
+      hibernate:
+        ddl-auto: update
   postgres-datasource:
     jdbc-url: jdbc:postgresql://localhost:5432/postgres   # dev
     username: postgres
@@ -21,13 +25,17 @@ spring:
       maximum-pool-size: 100
       pool-name: AssetsPool
       auto-commit: false
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        ddl-auto: none
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
         show_sql: true
         use_sql_comments: false
         format_sql: true

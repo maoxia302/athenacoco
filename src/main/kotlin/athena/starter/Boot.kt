@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component
 
 
 @SpringBootApplication
-@EnableJpaRepositories("athena.repository")
-@EntityScan("athena.repository")
 @ComponentScan(basePackages = ["athena"])
 @EnableScheduling
 class Boot

@@ -4,6 +4,7 @@ import org.apache.ibatis.session.SqlSessionFactory
 import org.mybatis.spring.SqlSessionFactoryBean
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder
@@ -16,6 +17,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import java.util.HashMap
+import javax.persistence.Entity
 import javax.persistence.EntityManagerFactory
 import javax.sql.DataSource
 
@@ -42,11 +44,12 @@ class BootProperties {
     transactionManagerRef = "cacheDataTransactionManager",
     basePackages = ["athena.repository"]
 )
+@EntityScan("athena.repository")
 class CacheDataSourceConfigs {
 
-    @Value("\${spring.jpa.hibernate.ddl-auto}")
+    @Value("\${spring.cache-datasource.jpa.hibernate.ddl-auto}")
     private val ddlAuto: String? = null
-    @Value("\${spring.jpa.database-platform}")
+    @Value("\${spring.cache-datasource.jpa.database-platform}")
     private val dialect: String? = null
 
     @Primary
@@ -86,9 +89,9 @@ class CacheDataSourceConfigs {
 )
 class AssetCoreSourceConfigs {
 
-    @Value("\${spring.jpa.hibernate.ddl-auto}")
+    @Value("\${spring.postgres-datasource.jpa.hibernate.ddl-auto}")
     private val ddlAuto: String? = null
-    @Value("\${spring.jpa.database-platform}")
+    @Value("\${spring.postgres-datasource.jpa.database-platform}")
     private val dialect: String? = null
 
     @Bean(name = ["assetsCoreLinkDataSource"])
@@ -111,7 +114,7 @@ class AssetCoreSourceConfigs {
 
     @Bean(name = ["assetsCoreLinkTransactionManager"])
     fun assetsCoreLinkTransactionManager(
-        @Qualifier("assetsManagerFactory") entityManagerFactory: EntityManagerFactory) : PlatformTransactionManager {
+        @Qualifier("assetsCoreLinkManagerFactory") entityManagerFactory: EntityManagerFactory) : PlatformTransactionManager {
         return JpaTransactionManager(entityManagerFactory)
     }
 
