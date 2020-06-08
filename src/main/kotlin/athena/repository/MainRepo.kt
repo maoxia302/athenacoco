@@ -1,5 +1,9 @@
 package athena.repository
 
+import athena.core.mappers.AthenaCoreLinkRepository
+import athena.core.mappers.CommonWrappers
+import athena.core.mappers.MyBatisObjectMapper
+import athena.core.repo.TransformRawParties
 import athena.socket.core.MessageContext
 import athena.tools.MiniCommonUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +28,8 @@ data class Logger(
 )
 
 @Component
-class RawPartiesManagement(@Autowired private val rawPartiesRepository: RawPartiesRepository) {
+class CommonsManagements(@Autowired private val rawPartiesRepository: RawPartiesRepository,
+                           @Autowired private val athenaCoreLinkRepository: AthenaCoreLinkRepository) {
 
     @PostConstruct
     private fun init() {
@@ -32,32 +37,44 @@ class RawPartiesManagement(@Autowired private val rawPartiesRepository: RawParti
          * the data for every client.
          * this must be initiated before the jobs.
          */
-        realTimeSync()
+        try {
+            Thread(Runnable { realTimeSync(System.currentTimeMillis()) }).start()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
     }
 
-    fun realTimeSync() {
-        val r = RawParties()
-        r.partyName = "76D34EAF7ABB240BD25BE43AFFD6F488"
-        r.authentication = "76D34EAF7ABB240BD25BE43AFFD6F488".reversed()
-        r.origin = "LINDE"
-        r.directory = 498601
-        r.signDate = Date()
-        r.signTime = MiniCommonUtils.currentMillis()
-        r.token = 0
-        r.details = ""
-        r.authorization = 1
-        rawPartiesRepository.save(r)
-        val r2 = RawParties()
-        r2.partyName = "2C4E866DB57BA3087B37D3EA5D3C73D2"
-        r2.authentication = "2C4E866DB57BA3087B37D3EA5D3C73D2".reversed()
-        r2.origin = "LINDE"
-        r2.directory = 498601
-        r2.signDate = Date()
-        r2.signTime = MiniCommonUtils.currentMillis()
-        r2.token = 0
-        r2.details = ""
-        r2.authorization = 1
-        rawPartiesRepository.save(r2)
+    /**
+     * RawParties are only aimed to be metas for upgrading.
+     */
+    fun realTimeSync(startTime: Long) {
+        val commonPageSize = 100
+        val initGap = 1000L
+        val actionGap = 120000L
+        fun action() {
+            val count = athenaCoreLinkRepository.selectCount(CommonWrappers.athenaCoreLinkCountAllWrapper())
+            var total = 1
+            if (count > commonPageSize) {
+                total = count / commonPageSize
+                if (count % commonPageSize > 0) total = total.inc()
+            }
+            for (i in 0..total) {
+                val all = athenaCoreLinkRepository.selectPage(
+                    CommonWrappers.athenaCoreLinkPage((i - 1).toLong(), commonPageSize.toLong(), count.toLong()),
+                    CommonWrappers.athenaCoreLinkPagedList())
+                val recs = all.records
+                if (!recs.isNullOrEmpty()) {
+                    recs.forEach {
+                        rawPartiesRepository.save(TransformRawParties.toRawParties(it)!!)
+                    }
+                }
+            }
+        }
+        Thread.sleep(initGap)
+        while (System.currentTimeMillis() > startTime) {
+            action()
+            Thread.sleep(actionGap)
+        }
     }
 }
 
@@ -102,8 +119,12 @@ class RawParties {
         private const val DIRECTORY_FLAG: String = "<DI>"
         private const val TOKEN_FLAG: String = "<TK>"
         private const val DETAILS_FLAG: String = "<DE>"
-        //<PN>76D34EAF7ABB240BD25BE43AFFD6F488<PN><AE>884F6DFFA34EB52DB042BBA7FAE43D67<AE><OR>LINDE<OR><DI>498600<DI><TK>403690081<TK><DE><U>UPDATE_SLICE<U><DE><AO>1<AO>
-        //<PN>partyName<PN><AE>authentication<AE><OR>origin<OR><DI>directory<DI><TK>token<TK><DE>details<DE><AO>authorization<AO>
+        // example::
+        // <PN>76D34EAF7ABB240BD25BE43AFFD6F488<PN><AE>884F6DFFA34EB52DB042BBA7FAE43D67<AE>
+        // <OR>LINDE<OR><DI>498600<DI><TK>403690081<TK><DE><U>UPDATE_SLICE<U><DE><AO>1<AO>
+        // form::
+        // <PN>partyName<PN><AE>authentication<AE><OR>origin<OR><DI>directory<DI><TK>token<TK>
+        // <DE>details<DE><AO>authorization<AO>
         fun parseMessageContext(cipher: String) : RawParties? {
             try {
                 val rawParties = RawParties()

@@ -122,9 +122,7 @@ class FileInteractionService {
                         if (main == null) {
                             parsedData.content = "<QUIET>"
                         } else {
-                            // val version = rawPartiesRepository!!.findPartyByPartyName(main.applicationCode!!)
-                            val rawParty = TransformRawParties.toRawParties(main)
-                            val version = rawParty!!.directory //main version check
+                            val version = rawPartiesRepository!!.findPartyByPartyName(main.applicationCode!!)
                             if (version != null && version > parsedData.gateConnectId) {
                                 parsedData.content = "<RENEW>${BootProperties.DOWNLOAD}"
                             } else {

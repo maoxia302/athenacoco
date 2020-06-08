@@ -33,7 +33,7 @@ dependencies {
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0")
-
+    compile group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.1.2'
 }
 
 compileKotlin {
