@@ -29,7 +29,7 @@ data class Logger(
 
 @Component
 class CommonsManagements(@Autowired private val rawPartiesRepository: RawPartiesRepository,
-                           @Autowired private val athenaCoreLinkRepository: AthenaCoreLinkRepository) {
+                         @Autowired private val athenaCoreLinkRepository: AthenaCoreLinkRepository) {
 
     @PostConstruct
     private fun init() {
