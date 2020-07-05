@@ -1,5 +1,6 @@
 package athena.starter
 
+import org.mybatis.spring.annotation.MapperScan
 import org.springframework.boot.Banner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component
 @SpringBootApplication
 @ComponentScan(basePackages = ["athena"])
 @EnableScheduling
+@MapperScan("athena.core.mappers")
 class Boot
 
 fun main(args: Array<String>) {
