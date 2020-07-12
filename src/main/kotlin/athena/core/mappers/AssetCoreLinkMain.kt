@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 object CommonWrappers {
 
     fun athenaCoreLinkCountAllWrapper() : LambdaQueryWrapper<AssetCoreLink> {
-        return QueryWrapper<AssetCoreLink>().lambda().ge(AssetCoreLink::authorization, -1)!!
+        return QueryWrapper<AssetCoreLink>().lambda().ge(AssetCoreLink::authorizationBound, -1)!!
     }
 
     fun athenaCoreLinkPage(current: Long, size: Long, total: Long) : Page<AssetCoreLink> {
@@ -23,7 +23,7 @@ object CommonWrappers {
     }
 
     fun athenaCoreLinkPagedList() : LambdaQueryWrapper<AssetCoreLink>? {
-        return QueryWrapper<AssetCoreLink>().lambda().ge(AssetCoreLink::authorization, -1).orderByAsc(AssetCoreLink::signLogTime)!!
+        return QueryWrapper<AssetCoreLink>().lambda().ge(AssetCoreLink::authorizationBound, -1).orderByAsc(AssetCoreLink::signLogTime)!!
     }
 }
 
@@ -38,9 +38,9 @@ class AthenaCoreLinkMapper {
                 "log_info as logInfo, " +
                 "version_directory as versionDirectory, " +
                 "sign_log_time as signLogTime, " +
-                "\"token\" as token, " +
-                "\"authorization\" as authorization\n" +
-                "FROM assschema.assets_core_link"
+                "token_bound as tokenBound, " +
+                "authorization_bound as authorizationBound\n" +
+                "FROM fins.assets_core_link"
         sql = if (d == 0 && mainId.contains("-")) {
             val pin = mainId.split("-")[0]
             val imei = mainId.split("-")[1]
@@ -51,11 +51,11 @@ class AthenaCoreLinkMapper {
         } else {
             String.format("%s %s", sql, "where made_code = '$mainId'")
         }
-        return "$sql and authorization > -1"
+        return "$sql and authorization_bound > -1"
     }
 
     fun countAll() : String {
-        return "select count(1) as all from assschema.assets_core_link where authorization > -1"
+        return "select count(1) as all from fins.assets_core_link where authorization_bound > -1"
     }
 
     fun getAllAthenaCoreLink(page: Int, limit: Int) : String {
@@ -67,9 +67,9 @@ class AthenaCoreLinkMapper {
                 "log_info as logInfo, " +
                 "version_directory as versionDirectory, " +
                 "sign_log_time as signLogTime, " +
-                "\"token\" as token, " +
-                "\"authorization\" as authorization\n" +
-                "FROM assschema.assets_core_link where authorization > -1"
+                "token_bound as tokenBound, " +
+                "authorization_bound as authorizationBound\n" +
+                "FROM fins.assets_core_link where authorizationBound > -1"
         return ""
     }
 }
@@ -88,11 +88,10 @@ interface AthenaCoreLinkRepository : BaseMapper<AssetCoreLink> {
         Result(column = "madeCode", property = "madeCode"),
         Result(column = "applicationCode", property = "applicationCode"),
         Result(column = "logInfo", property = "logInfo", typeHandler = JsonObjectTypeHandler::class),
-        Result(column = "datadate", property = "dataDate"),
         Result(column = "versionDirectory", property = "versionDirectory"),
         Result(column = "signLogTime", property = "signLogTime"),
-        Result(column = "token", property = "token"),
-        Result(column = "authorization", property = "authorization")
+        Result(column = "tokenBound", property = "tokenBound"),
+        Result(column = "authorizationBound", property = "authorizationBound")
     ])
     fun getMainAthenaCoreLink(@Param("mainId") mainId: String, @Param("d") d: Int) : AssetCoreLink?
     

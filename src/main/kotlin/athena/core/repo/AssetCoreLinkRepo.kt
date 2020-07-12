@@ -19,8 +19,8 @@ data class AssetCoreLink (
     val logInfo: AssetCoreLinkLog? = null,
     val versionDirectory: String? = null,
     val signLogTime: String? = null, //yyyy-MM-dd HH:mm:ss[xxxxxxxxxxx]
-    val token: String? = null,
-    val authorization: Int? = null
+    val tokenBound: String? = null,
+    val authorizationBound: Int? = null
 )
 
 object TransformRawParties {
@@ -46,8 +46,8 @@ object TransformRawParties {
         rp.signTime = acl.signLogTime.split("[")[1].trimEnd(']').toLong()
         rp.details = acl.logInfo.markedWith
         rp.authentication = acl.logInfo.markedBy
-        rp.token = acl.token.hashCode()
-        rp.authorization = acl.authorization
+        rp.token = acl.tokenBound.hashCode()
+        rp.authorization = acl.authorizationBound
         rp.directory = acl.versionDirectory!!.toInt()
         return rp
     }
@@ -60,7 +60,7 @@ object TransformRawParties {
         <OR>LINDE<OR>
         <AC>B1Rt#TC01<AC>
         <MK>4U9D[]<MK>
-        <LI><U>center_host=40.73.119.174:9688<U>indoor_host=40.73.119.174:9698<U>chain_gate=139.217.233.69:9529<U>pulse_gap=60000<U>sync_gap=600000<U><LI>
+        <LI><U>center_host=127.0.0.1:9688<U>indoor_host=127.0.0.1:9698<U>chain_gate=127.0.0.1:9529<U>pulse_gap=60000<U>sync_gap=600000<U><LI>
         <TK>xxxxxxxx<TK>
         <AR>200<AR>   // 200=user privilege above 200   100=user privilege below 100   130-170=user privilege in between
         format :
@@ -81,8 +81,8 @@ object TransformRawParties {
         c.append(APPLICATION_CODE_TAG).append(acl.applicationCode).append(APPLICATION_CODE_TAG)
         c.append(MARKED_TAG).append(acl.logInfo.markedBy).append("[").append(acl.logInfo.markedWith).append("]").append(MARKED_TAG)
         c.append(LOG_INFO_TAG).append(makeContents()).append(LOG_INFO_TAG)
-        c.append(TOKEN_TAG).append(acl.token).append(TOKEN_TAG)
-        c.append(AUTHORIZATION_TAG).append(acl.authorization).append(AUTHORIZATION_TAG)
+        c.append(TOKEN_TAG).append(acl.tokenBound).append(TOKEN_TAG)
+        c.append(AUTHORIZATION_TAG).append(acl.authorizationBound).append(AUTHORIZATION_TAG)
         return c.toString()
     }
 
