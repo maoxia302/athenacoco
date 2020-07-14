@@ -2,10 +2,8 @@ package athena.repository
 
 import athena.core.mappers.AthenaCoreLinkRepository
 import athena.core.mappers.CommonWrappers
-import athena.core.mappers.MyBatisObjectMapper
 import athena.core.repo.TransformRawParties
 import athena.socket.core.MessageContext
-import athena.tools.MiniCommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -52,23 +50,27 @@ class CommonsManagements(@Autowired private val rawPartiesRepository: RawParties
         val initGap = 1000L
         val actionGap = 120000L
         fun action() {
-            val count = athenaCoreLinkRepository.selectCount(CommonWrappers.athenaCoreLinkCountAllWrapper())
-            var total = 1
-            if (count > commonPageSize) {
-                total = count / commonPageSize
-                if (count % commonPageSize > 0) total = total.inc()
-            }
-            for (i in 0..total) {
-                val all = athenaCoreLinkRepository.selectPage(
-                    CommonWrappers.athenaCoreLinkPage((i - 1).toLong(), commonPageSize.toLong(), count.toLong()),
-                    CommonWrappers.athenaCoreLinkPagedList())
-                val recs = all.records
-                if (!recs.isNullOrEmpty()) {
-                    recs.forEach {
-                        rawPartiesRepository.save(TransformRawParties.toRawParties(it)!!)
+            try {
+                val count = athenaCoreLinkRepository.selectCount(CommonWrappers.athenaCoreLinkCountAllWrapper())
+                var total = 1
+                if (count > commonPageSize) {
+                    total = count / commonPageSize
+                    if (count % commonPageSize > 0) total = total.inc()
+                }
+                for (i in 0..total) {
+                    val all = athenaCoreLinkRepository.selectPage(
+                            CommonWrappers.athenaCoreLinkPage((i - 1).toLong(),
+                                    commonPageSize.toLong(),
+                                    count.toLong()),
+                            CommonWrappers.athenaCoreLinkPagedList())
+                    val recs = all.records
+                    if (!recs.isNullOrEmpty()) {
+                        recs.forEach {
+                            rawPartiesRepository.save(TransformRawParties.toRawParties(it)!!)
+                        }
                     }
                 }
-            }
+            } catch (ignore: Exception) {}
         }
         Thread.sleep(initGap)
         while (System.currentTimeMillis() > startTime) {

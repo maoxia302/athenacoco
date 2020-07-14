@@ -2,6 +2,7 @@ package athena.starter
 
 import org.apache.ibatis.session.SqlSessionFactory
 import org.mybatis.spring.SqlSessionFactoryBean
+import org.mybatis.spring.annotation.MapperScan
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.domain.EntityScan
@@ -87,6 +88,7 @@ class CacheDataSourceConfigs {
     transactionManagerRef = "assetsCoreLinkTransactionManager",
     basePackages = ["athena.core.repo"]
 )
+@MapperScan("athena.core.mappers")
 class AssetCoreSourceConfigs {
 
     @Value("\${spring.postgres-datasource.jpa.hibernate.ddl-auto}")
